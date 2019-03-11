@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <meta charset="UTF-8"> 
+  <head>
+    <script src="angular.min.js"></script>
+    <script src="angular-sanitize.min.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="font-awesome-4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+      .result-header button {
+        font-size: 14px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+      .result-header {
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+      .indented {
+        padding-left: 30px;
+      }
+      img {
+        max-width: 800px;
+      }
+      .label {
+        font-weight: bold;
+        border-radius: 3px;
+        padding: 1px;
+        margin-right: 5px;
+      }
+      .label-green {
+        background-color: green;
+        color: white;
+      }
+      .label-red {
+        background-color: red;
+        color: white;
+      }
+      p.text {
+        font-size: 13px;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body ng-app="app">
+    <div ng-controller="appController" class="container-fluid">
+      <div class="col-lg-10">
+        <result ng-repeat="elm in rootResults"
+                result-data="elm"
+                result-dict="results">
+        </result>
+      </div>
+    </div>
+  </body>
+</html>

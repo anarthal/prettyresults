@@ -1,0 +1,56 @@
+<div>
+  <!-- result header -->
+  <p class="result-header">
+    <button type="button" class="btn btn-primary"
+            ng-click="subVisible = true"
+            ng-show="!subVisible">
+      <span class="fa {{result.type | faGlyphiconClosed}}"></span>
+    </button>
+    <button type="button" class="btn btn-secondary"
+            ng-click="subVisible = false"
+            ng-show="subVisible">
+      <span class="fa {{result.type | faGlyphiconOpen}}"></span>
+    </button>
+    <span ng-repeat="label in result.labels" class="label label-{{label[0]}}">
+    	{{label[1]}}
+    </span>
+    <span ng-bind-html="result.name"></span>
+  </p>
+
+  <!-- result body -->
+  <div ng-show="subVisible">
+
+    <div ng-if="result.type === 'FigureResult'">
+      <img ng-src="../{{result.data.filename}}" />
+    </div>
+
+    <div ng-if="result.type === 'TableResult'">
+      <p>{{result.data.pre}}</p>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th ng-repeat="heading in result.data.headings track by $index">
+              {{heading}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="row in result.data.rows">
+            <td ng-repeat="cell in row track by $index">
+              {{cell}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>{{result.data.post}}</p>
+    </div>
+
+    <div ng-if="result.type === 'ContainerResult'" class="indented">
+      <result ng-repeat="child in result.children"
+              result-data="resultDict[child]"
+              result-dict="resultDict">
+      </result>
+    </div>
+
+  </div>
+</div>
