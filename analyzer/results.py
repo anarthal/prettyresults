@@ -72,6 +72,9 @@ class ContainerResult(BaseResult):
     def add_dataframe_table(self, *args, **kwargs):
         return self.add(TableResult.from_dataframe, *args, **kwargs)
     
+    def add_series_table(self, *args, **kwargs):
+        return self.add(TableResult.from_series, *args, **kwargs)
+    
     def add_keyvalue_table(self, *args, **kwargs):
         return self.add(TableResult.from_key_value, *args, **kwargs)
     
@@ -97,7 +100,7 @@ class FigureResult(BaseResult):
 
     def dump(self):
         if self.unsaved_fig is not None:
-            self.unsaved_fig.savefig(self.full_path, pad_inches=0)
+            self.unsaved_fig.savefig(self.full_path, bbox_inches='tight')
             self.unsaved_fig = None
             
     @classmethod
@@ -143,6 +146,14 @@ class TableResult(BaseResult):
     @classmethod
     def from_key_value(cls, values, **kwargs):
         return cls(headings=['Nombre', 'Valor'], rows=values, **kwargs)
+    
+    @classmethod
+    def from_series(cls, series, **kwargs):
+        left_heading = series.index.name if series.index.name is not None else ''
+        right_heading = series.name if series.name is not None else ''
+        return cls(headings=[left_heading, right_heading],
+                   rows=list(zip(series.index.astype(str), series.values.astype(str))),
+                   **kwargs)
 
         
 class ResultDirectory(object):
@@ -155,7 +166,7 @@ class ResultDirectory(object):
             with open(self.json_path, 'rt') as f:
                 obj = json.load(f)
                 results = { elm['id']: elm for elm in obj['results'] }
-        except FileNotFoundError:
+        except (FileNotFoundError, json.JSONDecodeError):
             results = {}
         return results
             
