@@ -3,9 +3,6 @@ import os
 import tempfile
 from analyzer import AnalysisContext
 
-def row_identifier(row):
-    return row['Order ID']
-
 def main():
     # Where result files will be stored. Images, table data... will be stored here.
     result_directory = os.path.join(tempfile.gettempdir(), 'analyzer_example')
@@ -16,7 +13,7 @@ def main():
     
     # Create an analysis context. This will keep track of results, and has methods to
     # store the results in disk, generating the web page and the Word document.
-    ctx = AnalysisContext([], [], result_directory, row_identifier)
+    ctx = AnalysisContext(result_directory)
     
     # Results have an ID and a name. The ID identifies the result, while the name is intended
     # to be read by humans. Results are organized hierarchically, in a tree-like structure.

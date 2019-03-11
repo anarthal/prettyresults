@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# myproj documentation build configuration file, created by
+# analyzer documentation build configuration file, created by
 # sphinx-quickstart on Sat Mar  9 13:13:25 2019.
 #
 # This file is execfile()d with the current directory set to its
@@ -18,8 +18,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
-import os
-sys.path.insert(0, os.path.join("..", ".."))
+sys.path.insert(0, "..")
 
 
 # -- General configuration ------------------------------------------------
@@ -46,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'myproj'
+project = 'analyzer'
 copyright = '2019, me'
 author = 'me'
 
@@ -95,7 +94,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -113,7 +112,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'myprojdoc'
+htmlhelp_basename = 'analyzerdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -140,7 +139,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'myproj.tex', 'myproj Documentation',
+    (master_doc, 'analyzer.tex', 'analyzer Documentation',
      'me', 'manual'),
 ]
 
@@ -150,7 +149,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'myproj', 'myproj Documentation',
+    (master_doc, 'analyzer', 'analyzer Documentation',
      [author], 1)
 ]
 
@@ -161,8 +160,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'myproj', 'myproj Documentation',
-     author, 'myproj', 'One line description of project.',
+    (master_doc, 'analyzer', 'analyzer Documentation',
+     author, 'analyzer', 'Display data analysis results as web pages and Word documents.',
      'Miscellaneous'),
 ]
 

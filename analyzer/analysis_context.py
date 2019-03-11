@@ -1,75 +1,40 @@
-import pandas as pd
-import numpy as np
 import webbrowser
-from pandas.api.types import CategoricalDtype
 from os import path
 import os
 import shutil
 
 from .results import ResultManager
-from .utils import VarType
 from .word import WordGenerator
 
 class AnalysisContext(object):
     '''
-    Class representing an analysis.
-    An analysis has associated the following data:
-
-    - Variable metadata: information about the involved variables. Used in load_data.
-    - Results: accumulates any result produced in the analysis.
-    - Result directory: the AnalysisContext remembers where to
-      write directories to and where to read them from.
+    Class that accumulates the results of an analysis.
+    
+    An analysis context has a result directory, a temporary directory where result files
+    will be written to; and keeps track of the generated results. It provides methods to access
+    and add results, and to write them in different formats.
     '''
-    def __init__(self, variables, container_results, results_directory, case_id_fun):
+    def __init__(self, results_directory, container_results=[]):
         '''
-        Initializes the analysis context with the variable metadata given in
-        variables. result_directory should be a path where the results will get written.
-        If result_directory does not already exist, it will be created. If it already
-        exists, any existing result will be loaded.
-        container_results specifies a list of container results to be created. This is
-        a shortcut to create container results beforehand. container_result must be a list
-        of 3 element tuples. Element 0 is the container ID, element 1 is the container
-        display name, and element 2 is a list of child containers to be created, with the
-        same described format (so the structure can be arbitrarily nested).
-        case_id_fun must be a callable taking a single Pandas dataframe row argument
-        and returning a string. It should return a human-readable identifier for the given row.
+        Initializes the analysis context. The context will contain the root result
+        (a container with ID 'root'), at least.
+        
+        Args:
+            results_directory (str): path to the directory where result files will be written to.
+                Several files (result data, images...) will be written to the directory.
+                If the directory does not already exist, it will be created. If the directory
+                contains result files from previous runs, they will be loaded and added,
+                as if they had been created in the current run.
+            container_results (list of tuples): specifies a list of container results to be created. This is
+                a shortcut to create container results beforehand. container_result must be a list
+                of 3 element tuples. Element 0 is the container ID, element 1 is the container
+                display name, and element 2 is a list of child containers to be created, with the
+                same described format (so the structure can be arbitrarily nested).
         '''
         self._results_directory = results_directory
         os.makedirs(results_directory, exist_ok=True)
-        self.case_id_fun = case_id_fun
-        self._variables = variables
         self._result_manager = ResultManager(results_directory, container_results)
-        self._warnings_result = self._result_manager['root'].add_table(
-            'warnings', 'Warnings', headings=['Caso', ''], rows=[])
-        
-    def load_data(self, fname, na_values=[' ']):
-        '''Loads data from the CSV file identified by fname and pre-processes it.
 
-        The variable names to load are taken from the variable metadata passed to the constructor.
-        Only variables without a 'computation' key in their dict will be loaded.
-        na_values will be forwarded to pandas.read_csv.
-        After loading, data will be pre-processed:
-        
-            - Derived variables (those defining a 'computation' key in their dict) will be computed.
-            - A copy of the original values will be stored in the dataframe, under the name
-              $NAME_ORIGINAL, being $NAME the original variable name.
-            - Type transformations will be applied.
-            - Mandatory checks will be performed. Any row with a NaN value in any mandatory
-              variable will be dropped.
-        
-        Loading data may add warnings to the context.
-
-        Args:
-            fname (str): path to the CSV file to load.
-            na_values (list of str): values to be considered as NaN
-        Returns:
-            Dataframe with the loaded data.
-        '''
-        csv_varnames = [varname for varname, var in self._variables.items() if 'computation' not in var]
-        df = pd.read_csv(fname, usecols=csv_varnames, na_values=na_values)
-        self._preprocess(df)
-        return df
-    
     def get_result(self, result_id):
         '''Returns a result object identified by result_id. Raises KeyError if not found.
         
@@ -127,60 +92,3 @@ class AnalysisContext(object):
         
         WordGenerator(self._result_manager.results,
                       self._results_directory).generate(output_file, result_ids)
-            
-    def add_warning(self, case_id, text):
-        '''Logs a warning.
-        
-        In this context, a warning has an identifier and a text. The identifier should help
-        locate which data triggered the warning.
-        Warnings will be included as a TableResult with ID root.warnings.
-        
-        Args:
-            case_id (str or pandas.Series): if str, should identify the data that triggered the warning.
-                If pd.Series, an string identifier will be generated by
-                invoking the case_id_fun provided to the constructor.
-
-            text (str): Warning text.
-        '''
-        if isinstance(case_id, pd.Series):
-            case_id = self.case_id_fun(case_id)
-        self._warnings_result.add_row((case_id, text))
-        
-    # Helpers for load_data
-    def _drop_na(self, df, varname):
-        lost_cases = df[df[varname].isna()]
-        if len(lost_cases) != 0:
-            for _, row in lost_cases.iterrows():
-                self.add_warning(row, '{} perdida'.format(varname))
-            df.dropna(subset=[varname], inplace=True)
-            
-    def _compute_derived(self, df):
-        for varname, var in self._variables.items():
-            fun = var.get('computation')
-            if fun is not None:
-                df[varname] = fun(df, self)
-                
-    def _preprocess(self, df):
-        self._compute_derived(df)
-        for varname in df:
-            vardata = self._variables[varname]
-            vartype = vardata['type']
-            
-            # Store the original value
-            df[varname + '_ORIGINAL'] = df[varname]
-    
-            # Convert to adequate type
-            if vartype == VarType.Category:
-                cat_type = CategoricalDtype(categories=vardata['labels'].keys())
-                cat_map = { key: value[0] for key, value in vardata['labels'].items() }
-                df.loc[:, varname] = df[varname].astype(cat_type)
-                df[varname].cat.rename_categories(cat_map, inplace=True)
-            elif vartype == VarType.Bool:
-                df.loc[~df[varname].isin((0, 1)), [varname]] = np.nan
-                
-            # Mandatory checking
-            if vardata.get('mandatory', False):
-                self._drop_na(df, varname)
-                # Further conversion can be done if no NaN is present
-                if vartype == VarType.Int:
-                    df[varname] = df[varname].astype(np.int64)

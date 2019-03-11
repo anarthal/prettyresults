@@ -1,16 +1,13 @@
-.. myproj documentation master file, created by
-   sphinx-quickstart on Sat Mar  9 13:13:25 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. analyzer documentation master file.
 
-Welcome to myproj's documentation!
-==================================
+Welcome to analyzer's documentation!
+====================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-.. autoclass:: analyzer.analysis_context.AnalysisContext()
+.. autoclass:: analyzer.AnalysisContext()
    :members:
    :special-members:
    :exclude-members: __weakref__
