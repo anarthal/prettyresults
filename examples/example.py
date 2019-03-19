@@ -4,8 +4,10 @@ import tempfile
 from analyzer import AnalysisContext
 
 def main():
+    root_dir = os.path.join(tempfile.gettempdir(), 'analyzer_example')
+    
     # Where result files will be stored. Images, table data... will be stored here.
-    result_directory = os.path.join(tempfile.gettempdir(), 'analyzer_example')
+    result_directory = os.path.join(root_dir, 'result_directory')
     
     # Read the data to analyze (standard Pandas)
     csv_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data.csv')
@@ -73,16 +75,13 @@ def main():
     #
     # The generated web page and Word document will represent this layout.
     
-    # This will write the results to the result directory. It must be called before generating the web
-    # or the word, as these rely on the result directory being written.
-    ctx.dump_results()
-    
     # This will copy the relevant files to generate the web and will open a browser tab
     # to view it.
-    ctx.generate_web(open_browser=True)
+    web_directory = os.path.join(root_dir, 'web')
+    ctx.generate_web(web_directory, open_browser=True, overwrite=True)
     
     # Generate the Word document.
-    ctx.generate_word(os.path.join(result_directory, 'results.docx'))
+    ctx.generate_word(os.path.join(root_dir, 'results.docx'))
 
 
 if __name__ == '__main__':

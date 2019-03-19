@@ -49,32 +49,44 @@ class AnalysisContext(object):
         '''Writes results to the result directory.'''
         self._result_manager.dump()
             
-    def generate_web(self, open_browser=True):
+    def generate_web(self, web_directory, *, open_browser=False, overwrite=False):
         '''Generates the web page.
         
-        Creates a subdirectory named "web" under the results directory, and copies
-        all relevant files to this directory. Open web/index.html to access the web.
+        The webpage will be created under web_directory and will contain every result
+        known to the analysis context. Open index.html to view the web.
+        The web is completely stand-alone: you can copy the web directory to another location
+        or machine and will still display correctly.
         
-        The will contain every result known to the analysis context, including
-        any from previous runs.
+        If web_directory already exists and overwrite is True,
+        the directory will be RECURSIVELY REMOVED. If remove_if_exists is False and the
+        directory exists, an exception of type FileExistsError will be raised.
         
         Args:
-            open_browser (bool): if True, the resulting page will be open in a new web browser tab. 
+            web_directory (str): path where the web page will be placed under.
+            open_browser (bool): if True, the resulting page will be open in a new web browser tab.
+            overwrite (bool): if True, the directory will be removed if already exists.
         '''
         # Create the directory
+        if not overwrite and path.exists(web_directory):
+            raise FileExistsError('Web directory {} already exists'.format(web_directory))
         project_dir = path.dirname(path.realpath(__file__))
-        web_directory = path.join(self._results_directory, 'web')
         shutil.rmtree(web_directory, ignore_errors=True)
         shutil.copytree(path.join(project_dir, 'web'), web_directory)
         os.makedirs(web_directory, exist_ok=True)
         
-        # Generate data.js
-        results_data = b'var ANALYSIS_RESULTS = '
-        with open(self._result_manager.json_path, 'rb') as f:
-            results_data += f.read()
-        with open(path.join(web_directory, 'data.js'), 'wb') as f:
-            f.write(results_data)
-        
+        # Generate result_data.js
+        with open(path.join(web_directory, 'result_data.js'), 'wt') as f:
+            f.write('var ANALYSIS_RESULTS = ')
+            self._result_manager.dump_result_data(f)
+            
+        # Copy additional files
+        web_result_directory = path.join(web_directory, 'results')
+        os.makedirs(web_result_directory, exist_ok=True)
+        for fname in os.listdir(self._results_directory):
+            full_path = path.join(self._results_directory, fname)
+            if path.isfile(full_path):
+                shutil.copy2(full_path, path.join(web_directory, 'results', fname))
+            
         # Open the browser
         if open_browser:
             webbrowser.open('file:///{}/index.html'.format(web_directory), new=2)

@@ -92,7 +92,7 @@ class FigureResult(BaseResult):
         
     @property
     def filename(self):
-        return self.id + '.image.jpg'
+        return self.id + '.jpg'
 
     @property
     def full_path(self):
@@ -155,45 +155,14 @@ class TableResult(BaseResult):
                    rows=list(zip(series.index.astype(str), series.values.astype(str))),
                    **kwargs)
 
-        
-class ResultDirectory(object):
-    def __init__(self, dir_path):
-        self.path = dir_path
-        self.json_path = path.join(self.path, 'data.json')
-        
-    def read(self):
-        try:
-            with open(self.json_path, 'rt') as f:
-                obj = json.load(f)
-                results = { elm['id']: elm for elm in obj['results'] }
-        except (FileNotFoundError, json.JSONDecodeError):
-            results = {}
-        return results
-            
-    def write(self, results):
-        results_array = [{
-            'id': result.id,
-            'name': result.name,
-            'type': result.result_type,
-            'data': result.data,
-            'labels': result.labels,
-            'children': result.children
-        } for result in results]
-        with open(self.json_path, 'w') as f:
-            json.dump({
-                'results': results_array,
-                'root_result': 'root'
-            }, f, indent=4)
-
 
 class ResultManager(object):
     RESULT_TYPE_MAP = { result.__name__: result for result in
                         (ContainerResult, FigureResult, TableResult) }
     
     def __init__(self, result_directory, containers):
-        self._result_directory = ResultDirectory(result_directory)
-        self._results = { id_: self._result_from_json(result_obj)
-                         for id_, result_obj in self._result_directory.read().items() }
+        self._result_directory = result_directory
+        self._results = self._load_result_directory()
         self._root = ContainerResult(weakref.proxy(self), 'root', 'Root result')
         self.add(self._root)
         self._create_containers(self._root, containers)
@@ -201,6 +170,35 @@ class ResultManager(object):
     def _result_from_json(self, result_obj):
         result_class = self.RESULT_TYPE_MAP[result_obj['type']]
         return result_class.from_json(weakref.proxy(self), result_obj)
+    
+    def _load_result_directory(self):
+        # Read the JSON
+        try:
+            with open(self.json_path, 'rt') as f:
+                obj = json.load(f)
+                results = { elm['id']: elm for elm in obj['results'] }
+        except (FileNotFoundError, json.JSONDecodeError):
+            results = {}
+        
+        # Create the actual objects
+        res = { id_: self._result_from_json(result_obj)
+                for id_, result_obj in results.items() }
+        
+        return res
+    
+    def dump_result_data(self, fobj):
+        results_array = [{
+            'id': result.id,
+            'name': result.name,
+            'type': result.result_type,
+            'data': result.data,
+            'labels': result.labels,
+            'children': result.children
+        } for result in self._results.values()]
+        json.dump({
+            'results': results_array,
+            'root_result': 'root'
+        }, fobj, indent=4)
         
     @property
     def results(self):
@@ -212,11 +210,11 @@ class ResultManager(object):
     
     @property
     def result_directory_path(self):
-        return self._result_directory.path
+        return self._result_directory
     
     @property
     def json_path(self):
-        return self._result_directory.json_path
+        return path.join(self._result_directory, 'data.json')
     
     def add(self, result):
         old_result = self._results.get(result.id)
@@ -226,7 +224,8 @@ class ResultManager(object):
         self._results[result.id] = result
   
     def dump(self):
-        self._result_directory.write(self._results.values())
+        with open(self.json_path, 'wt') as f:
+            self.dump_result_data(f)
             
     def __getitem__(self, id_):
         return self._results[id_]
