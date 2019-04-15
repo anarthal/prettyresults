@@ -51,7 +51,8 @@ class DataLoader(object):
         Returns:
             Dataframe with the loaded data.
         '''
-        csv_varnames = [varname for varname, var in self.variables.items() if 'computation' not in var]
+        csv_varnames = [varname for varname, var in self.variables.items()
+                        if all(k not in var for k in ('computation-pre', 'computation-post'))]
         df = pd.read_csv(fname, usecols=csv_varnames, na_values=na_values)
         self._preprocess(df)
         ctx.get_result('root').add_table('warnings', 'Warnings',
@@ -66,14 +67,14 @@ class DataLoader(object):
                 self.add_warning(row, '{} perdida'.format(varname))
             df.dropna(subset=[varname], inplace=True)
             
-    def _compute_derived(self, df):
+    def _compute_derived(self, df, calculation_key):
         for varname, var in self.variables.items():
-            fun = var.get('computation')
+            fun = var.get(calculation_key)
             if fun is not None:
                 df[varname] = fun(df, self)
                 
     def _preprocess(self, df):
-        self._compute_derived(df)
+        self._compute_derived(df, 'computation-pre')
         for varname in df:
             vardata = self.variables[varname]
             vartype = vardata['type']
@@ -96,6 +97,7 @@ class DataLoader(object):
                 # Further conversion can be done if no NaN is present
                 if vartype == VarType.Int:
                     df[varname] = df[varname].astype(np.int64)
+        self._compute_derived(df, 'computation-post')
                     
 def _combine_variables_row(row, varname1, varname2, on_conflict, na_values, loader):
     v1 = row[varname1]
@@ -134,8 +136,19 @@ def combine_variables(varname1, varname2, on_conflict=np.nan, na_values=DEFAULT_
             row, varname1, varname2, on_conflict, na_values, loader), axis=1)
     return res
 
+# TODO: this one may be wrong!!!
 def logical_or(varname1, varname2, na_values=DEFAULT_NA_VALUES):
     return combine_variables(varname1, varname2, lambda v1, v2: v1 or v2, na_values)
+
+def logical_and(varname1, varname2):
+    def res(df, loader):
+        true_values = (df[varname1] == 1.0) & (df[varname2] == 1.0)
+        false_values = (df[varname1] == 0.0) | (df[varname2] == 0.0)
+        result_series = pd.Series(np.nan, index=df.index)
+        result_series[true_values] = 1.0
+        result_series[false_values] = 0.0
+        return result_series
+    return res
 
 def multibool_to_enum(variables, na_values=DEFAULT_NA_VALUES):
     def res(df, loader):

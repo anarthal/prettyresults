@@ -80,14 +80,17 @@ def _descriptive(parent_result, df, varname, var_meta, year_name='AÑO'):
         add_frequency_results(result, df[varname], var_meta) # table & bar plot
         add_per_year_frequency_result(result, df[varname], df[year_name], var_meta)
         
-        # Original counts
-        orig_result = result.add_container('orig', 'Datos originales')
+        # Original counts (if they exist)
         orig_varname = varname + '_ORIGINAL'
-        add_frequency_results(orig_result, df[orig_varname], var_meta)
-        add_per_year_frequency_result(orig_result, df[orig_varname], df[year_name], var_meta)
+        if orig_varname in df:
+            orig_result = result.add_container('orig', 'Datos originales')
+            add_frequency_results(orig_result, df[orig_varname], var_meta)
+            add_per_year_frequency_result(orig_result, df[orig_varname], df[year_name], var_meta)
 
     
-def descriptives(parent_result, df, variable_meta, varnames, year_name='AÑO'):
+def descriptives(parent_result, df, variable_meta, varnames=None, year_name='AÑO'):
+    if varnames is None:
+        varnames = variable_meta.keys()
     for varname in varnames:
         category = variable_meta[varname]['category']
         result = parent_result.get_child(category)

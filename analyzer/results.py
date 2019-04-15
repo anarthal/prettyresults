@@ -22,8 +22,6 @@ class BaseResult(object):
         self.labels = labels
         self.data = {}
         self.children = children.copy()
-        if '.' in name:
-            raise ValueError('Result name cannot contain dots: {}'.format(name))
     
     def __getattr__(self, name):
         return self.data[name]
@@ -53,6 +51,8 @@ class BaseResult(object):
 
 class ContainerResult(BaseResult):
     def add(self, result_factory, id_, name, *args, **kwargs):
+        if '.' in id_:
+            raise ValueError('Result ID cannot contain dots: {}'.format(name))
         child_id = self.id + '.' + id_
         result = result_factory(manager=self.manager, id_=child_id, name=name, *args, **kwargs)
         if child_id not in self.children:

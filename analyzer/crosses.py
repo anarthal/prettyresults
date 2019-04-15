@@ -9,6 +9,14 @@ from .results import Label
 ContingencyResult = namedtuple('ContingencyResult',['p', 'chi2', 'too_small_freqs', 'crosstab', 'contingency_table', 'n'])
 KendallTauResult = namedtuple('KendallTauResult', ['p', 'tau', 'n'])
 
+def crosstab(series1, series2, var1, var2):
+    cross = pd.crosstab(series1, [series2])
+    cross.index = readable_index(cross.index, var1)
+    cross.columns = readable_index(cross.columns, var2)
+    cross.index.name = var1['desc']
+    cross.columns.name = var2['desc']
+    return cross
+
 def chi2_contingency(df, variable_meta, name1, name2):
     # Variable metadata
     var1 = variable_meta[name1]
@@ -19,11 +27,7 @@ def chi2_contingency(df, variable_meta, name1, name2):
     series2 = df[name2]
 
     # Cross table
-    cross = pd.crosstab(series1, [series2])
-    cross.index = readable_index(cross.index, var1)
-    cross.columns = readable_index(cross.columns, var2)
-    cross.index.name = var1['desc']
-    cross.columns.name = var2['desc']
+    cross = crosstab(series1, series2, var1, var2)
     
     # Statistical analysis
     chi2, p, _, expected = stats.chi2_contingency(cross.values)
@@ -58,7 +62,7 @@ def too_small_freqs_label():
     
 def add_chi2_results(parent_result, chi_values, significance=0.05):
     # Cross graph
-    freq_bar(chi_values.crosstab)
+    freq_bar(chi_values.crosstab, xlabel=chi_values.crosstab.index.name)
     parent_result.add_figure('freq_bar', 'Gráfico de frecuencias')
     plt.close('all')
     
