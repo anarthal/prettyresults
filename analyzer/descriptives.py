@@ -4,6 +4,7 @@ import numpy as np
 from scipy import stats
 
 from .utils import VarType, readable_index, freq_bar
+from analyzer.utils import freq_pie
 
 # For simplicity, mean CI is included here too
 def mean_confidence_interval(data, confidence=0.95):
@@ -42,23 +43,38 @@ def add_histogram_result(parent_result, series, var_meta):
     parent_result.add_figure('hist', 'Histograma')
     plt.close('all')
     
-def add_frequency_results(parent_result, series, var_meta):
-    # Bar plot
+def add_frequency_results(parent_result, series, var_meta, *, bar_plot=True, pie_plot=False):
+    # Pretty value counts
     value_counts = series.value_counts()
     value_counts.index = readable_index(value_counts.index, var_meta)
-    freq_bar(value_counts, title=var_meta['desc'])
-    parent_result.add_figure('freq_bar', 'Gráfico de frecuencias')
-    plt.close('all')
+    
+    # Bar plot
+    if bar_plot:
+        freq_bar(value_counts, title=var_meta['desc'])
+        parent_result.add_figure('freq_bar', 'Gráfico de frecuencias')
+        
+    # Pie plot
+    if pie_plot:
+        freq_pie(value_counts, title=var_meta['desc'])
+        parent_result.add_figure('freq_pie', 'Gráfico de frecuencias (diagrama de sectores)')
     
     # Table
+    sample_size = len(series.index)
     num_nans = series.isna().sum()
-    df_value_counts = pd.DataFrame(data={'Frecuencia': value_counts})
+    effective_sample_size = sample_size - num_nans
+    nans_percent = 100.0*num_nans/sample_size
+    df_value_counts = pd.DataFrame(data={
+        'Frecuencia': value_counts,
+        'Porcentaje': value_counts.map(lambda v: '{:.2f}%'.format(100.0*v/effective_sample_size))
+    })
     parent_result.add_dataframe_table(
         'freq_table',
         'Tabla de frecuencias',
         df_value_counts,
-        post='Perdidos: {}'.format(num_nans)
+        post='N = {}, perdidos = {} ({:.2f}%)'.format(sample_size, num_nans, nans_percent)
     )
+    
+    plt.close('all')
     
 def add_per_year_frequency_result(parent_result, series, per_year_series, var_meta):
     desc = var_meta['desc']
