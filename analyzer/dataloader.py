@@ -136,19 +136,28 @@ def combine_variables(varname1, varname2, on_conflict=np.nan, na_values=DEFAULT_
             row, varname1, varname2, on_conflict, na_values, loader), axis=1)
     return res
 
-# TODO: this one may be wrong!!!
-def logical_or(varname1, varname2, na_values=DEFAULT_NA_VALUES):
+def combine_variables_bool(varname1, varname2, na_values=DEFAULT_NA_VALUES):
     return combine_variables(varname1, varname2, lambda v1, v2: v1 or v2, na_values)
 
-def logical_and(varname1, varname2):
+def _logical_op(true_combinator, false_combinator, *varnames):
+    assert(len(varnames) >= 2)
     def res(df, loader):
-        true_values = (df[varname1] == 1.0) & (df[varname2] == 1.0)
-        false_values = (df[varname1] == 0.0) | (df[varname2] == 0.0)
+        true_values = df[varnames[0]] == 1.0
+        false_values = df[varnames[0]] == 0.0
+        for vname in varnames:
+            true_values = true_combinator(true_values, df[vname] == 1.0)
+            false_values = false_combinator(false_values, df[vname] == 0.0)
         result_series = pd.Series(np.nan, index=df.index)
         result_series[true_values] = 1.0
         result_series[false_values] = 0.0
         return result_series
     return res
+
+def logical_or(*varnames):
+    return _logical_op(lambda x, y: x | y, lambda x, y: x & y, *varnames)
+
+def logical_and(*varnames):
+    return _logical_op(lambda x, y: x & y, lambda x, y: x | y, *varnames)
 
 def multibool_to_enum(variables, na_values=DEFAULT_NA_VALUES):
     def res(df, loader):
