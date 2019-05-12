@@ -39,7 +39,10 @@ def freq_bar(value_counts, title='', xlabel='', ylabel='Frecuencia', rot=0, x_va
             plt.text(rect.get_x() + rect.get_width()/2., height+0.1, str(int(height)),
                     fontsize=8, fontweight='bold', ha='center', va='bottom')
 
-def freq_pie(value_counts, size=6.4, **kwargs):
+def freq_pie(value_counts, size=8.0, **kwargs):
     plt.figure(figsize=(size, size)) # Prevent distortion
-    value_counts.plot.pie(**kwargs)
+    ax = value_counts.plot.pie(legend=True, use_index=False,
+                               labels=None, autopct='%.2f%%',
+                                **kwargs)
+    ax.set_ylabel('') # by default, series name is included as ylabel - remove it
     
