@@ -1,8 +1,9 @@
 # analyzer - Present data analysis results in Web or Docx format
 
-analyzer is a Python project to present data analysis results in different formats.
-The core idea behind analyzer is to allow the user generate and display thousands of
-analysis results in a neat, friendly way.
+analyzer is a Python package to display data analysis results in different formats.
+In short: you run your data analysis using your preferred Python tools, generate
+a set of results (figures, tables...) and tell analyzer about them.
+Analyzer will generate a neat, friendly web page with your results.
 
 Suppose you are analyzing some social or medical data, using pandas and scipy.stats.
 You've created several matplotlib figures with descriptive data, some frequency tables,
