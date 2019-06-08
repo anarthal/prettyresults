@@ -4,18 +4,13 @@ import tempfile
 from analyzer import AnalysisContext
 
 def main():
-    root_dir = os.path.join(tempfile.gettempdir(), 'analyzer_example')
-    
-    # Where result files will be stored. Images, table data... will be stored here.
-    result_directory = os.path.join(root_dir, 'result_directory')
-    
     # Read the data to analyze (standard Pandas)
     csv_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data.csv')
     df = pd.read_csv(csv_path)
     
     # Create an analysis context. This will keep track of results, and has methods to
-    # store the results in disk, generating the web page and the Word document.
-    ctx = AnalysisContext(result_directory)
+    # generate the web page and the Word document.
+    ctx = AnalysisContext()
     
     # Results have an ID and a name. The ID identifies the result, while the name is intended
     # to be read by humans. Results are organized hierarchically, in a tree-like structure.
@@ -25,11 +20,11 @@ def main():
     
     # Container results have several add_<result-type> methods, which create a result and add
     # it as a child of the container. You must pass at least the child result id and the child name.
-    singlevar_result = root_result.add_container('singlevar', 'Single variable descriptive analysis')
-    interactions_result = root_result.add_container('inter', 'Interactions')
-    
-    # Let's do some basic descriptive analysis
-    region_result = singlevar_result.add_container('region', 'Region')
+    region_result = root_result.add_container('region', 'Region')
+    channel_result = root_result.add_container('channel', 'Channel')
+    region_channel_result = root_result.add_container('channel-by-region', 'Sales channel by region')
+
+    # Analysis for Region
     df['Region'].value_counts().plot.bar()
     
     # add_figure will add a figure result, using the current active figure
@@ -44,7 +39,6 @@ def main():
     # Let's repeat the same analysis for another variable. Note that result IDs must only
     # be unique within the container they are placed in - there is no problem with the two bar
     # graphs to have the same 'bar' ID.
-    channel_result = singlevar_result.add_container('channel', 'Channel')
     df['Sales Channel'].value_counts().plot.bar()
     channel_result.add_figure('bar', 'Frequency bar chart')
     channel_result.add_series_table('freqs',
@@ -53,7 +47,6 @@ def main():
     
 
     # Analyze the interactions between the above variables.
-    region_channel_result = interactions_result.add_container('channel-by-region', 'Sales channel by region')
     crosstab = pd.crosstab(df['Region'], [df['Sales Channel']])
     region_channel_result.add_dataframe_table('freq', 'Frequency table', crosstab)
     crosstab.plot.bar()
@@ -61,27 +54,25 @@ def main():
     
     # We've added a bunch of results now. The result tree will look like this:
     # root
-    #   root.singlevar
-    #      root.singlevar.region
-    #         root.singlevar.region.bar
-    #         root.singlevar.region.freq
-    #      root.singlevar.channel
-    #         root.singlevar.channel.bar
-    #         root.singlevar.channel.freq
-    #   root.inter
-    #      root.inter.channel-by-region
-    #         root.inter.channel-by-region.freq
-    #         root.inter.channel-by-region.bar
+    #    root.region
+    #       root.region.bar
+    #       root.region.freq
+    #    root.channel
+    #       root.channel.bar
+    #       root.channel.freq
+    #    root.channel-by-region
+    #       root.channel-by-region.freq
+    #       root.channel-by-region.bar
     #
     # The generated web page and Word document will represent this layout.
     
-    # This will copy the relevant files to generate the web and will open a browser tab
-    # to view it.
-    web_directory = os.path.join(root_dir, 'web')
+    # Generate the web and open a browser tab to view it.
+    web_directory = os.path.join(tempfile.gettempdir(), 'analyzer_web')
     ctx.generate_web(web_directory, open_browser=True, overwrite=True)
     
     # Generate the Word document.
-    ctx.generate_word(os.path.join(root_dir, 'results.docx'))
+    word_path = os.path.join(tempfile.gettempdir(), 'results.docx')
+    ctx.generate_word(word_path)
 
 
 if __name__ == '__main__':
