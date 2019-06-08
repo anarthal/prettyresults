@@ -2,6 +2,7 @@ import webbrowser
 from os import path
 import os
 import shutil
+import tempfile
 
 from .results import ResultManager
 from .word import WordGenerator
@@ -14,25 +15,31 @@ class AnalysisContext(object):
     will be written to; and keeps track of the generated results. It provides methods to access
     and add results, and to write them in different formats.
     '''
-    def __init__(self, results_directory, container_results=[]):
+    def __init__(self, results_directory=None, container_results=[]):
         '''
         Initializes the analysis context. The context will contain the root result
         (a container with ID 'root'), at least.
         
         Args:
-            results_directory (str): path to the directory where result files will be written to.
+            results_directory (str or None): path to the directory where result files will be written to.
                 Several files (result data, images...) will be written to the directory.
                 If the directory does not already exist, it will be created. If the directory
                 contains result files from previous runs, they will be loaded and added,
                 as if they had been created in the current run.
+                If it's None, a temporary directory will be created for result files, which will be removed
+                when the AnalysisContext object is destroyed.
             container_results (list of tuples): specifies a list of container results to be created. This is
                 a shortcut to create container results beforehand. container_result must be a list
                 of 3 element tuples. Element 0 is the container ID, element 1 is the container
                 display name, and element 2 is a list of child containers to be created, with the
                 same described format (so the structure can be arbitrarily nested).
         '''
+        if results_directory is None:
+            self._temp_dir = tempfile.TemporaryDirectory()
+            results_directory = self._temp_dir.name
+        else:
+            os.makedirs(results_directory, exist_ok=True)
         self._results_directory = results_directory
-        os.makedirs(results_directory, exist_ok=True)
         self._result_manager = ResultManager(results_directory, container_results)
 
     def get_result(self, result_id):
