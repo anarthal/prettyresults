@@ -34,9 +34,9 @@ The AnalysisContext stores results hierarchically, in a tree. Results may be of 
   and have methods to add other results as children. This is the preferred way to
   add new results.
   
-Results have a unique ID and a human-friendly display name. By default, the AnalysisContext creates
-a single container result, of ID :code:`root`. We may retrieve any result by ID using
-:meth:`analyzer.AnalysisContext.get_result`:
+Results have a unique ID (more info :ref:`here <result_ids>`) and a human-friendly display name.
+By default, the AnalysisContext creates a single container result, of ID :code:`root`.
+We may retrieve any result by ID using :meth:`analyzer.AnalysisContext.get_result`:
 
 .. literalinclude:: ../examples/example.py
    :lines: 19

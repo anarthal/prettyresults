@@ -3,10 +3,36 @@ FAQ and other topics
 
 This page is still under construction.
 
-- Copying the web page around.
-- Web page browser compatibility
-- Result IDs: unqualified, qualified, and uniqueness.
-- How to generate a Word with a subset of the results.
-- Loading results from previous runs.
+.. _copying_web:
+
+Copying the web page around
+---------------------------
+
+.. _browser_compatibility:
+
+Web page browser compatibility
+------------------------------
+
+
+.. _result_ids:
+
+Result IDs: qualified and unqualified
+-------------------------------------
+
+.. _generating_word:
+
+Generating a Word with a subset of the results
+----------------------------------------------
+
+.. _loading_results:
+
+Loading results from previous runs
+----------------------------------
+
+.. _extending:
+
+Extending the result library
+----------------------------
+
 - Internals: web front-end and word generation.
 - How to extend.
