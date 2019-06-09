@@ -24,12 +24,13 @@ angular.module('app', ['ngSanitize'])
 })
 .controller('appController', function($scope) {
     $scope.results = {}
-    for (elm of ANALYSIS_RESULTS.results) {
-    	$scope.results[elm.id] = elm
-    }
+    angular.forEach(ANALYSIS_RESULTS.results, function(elm) {
+        $scope.results[elm.id] = elm
+    })
     rootResult = $scope.results[ANALYSIS_RESULTS.root_result]
-    $scope.rootResults = rootResult.children.map(id => $scope.results[id])
-    console.log($scope.results)
+    $scope.rootResults = rootResult.children.map(function(id) {
+        return $scope.results[id]
+    })
 })
 .directive('result', function() {
     return {
