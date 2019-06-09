@@ -17,7 +17,7 @@ We first load the CSV using standard Pandas:
 .. literalinclude:: ../examples/example.py
    :lines: 8,9
 
-We now create an :ref:`analyzer.AnalysisContext` (TODO: fix the link) object.
+We now create an :class:`analyzer.AnalysisContext` object.
 This is the heart of analyzer: it will accumulate
 the results of our analysis to generate the web and Word afterwards:
 
@@ -30,24 +30,25 @@ The AnalysisContext stores results hierarchically, in a tree. Results may be of 
 - Tables. The name speaks by itself.
 - Containers. These are intermediate nodes in the tree, and contain further results.
   They are shown as folders in the web page, and as headings in the Word document.
-  Container results are represented by the ContainerResult (TODO: ref) class,
+  Container results are represented by the :class:`analyzer.results.ContainerResult` class,
   and have methods to add other results as children. This is the preferred way to
   add new results.
   
 Results have a unique ID and a human-friendly display name. By default, the AnalysisContext creates
-a single container result, of ID `root`. We may retrieve any result by ID using AnalysisContext.get_result:
+a single container result, of ID :code:`root`. We may retrieve any result by ID using
+:meth:`analyzer.AnalysisContext.get_result`:
 
 .. literalinclude:: ../examples/example.py
    :lines: 19
 
 We are going to analyze channel and region data, as well as the interaction between the two.
-We create one container result for each one, using ContainerResult.add_container. We need to
-provide an ID, unique within the current container, and a display name:
+We create one container result for each one, using :meth:`analyzer.results.ContainerResult.add_container`.
+We need to provide an ID, unique within the current container, and a display name:
 
 .. literalinclude:: ../examples/example.py
    :lines: 21-25
 
-Let's create a bar plot for the Region variable. We use ContainerResult.add_figure
+Let's create a bar plot for the Region variable. We use :meth:`analyzer.results.ContainerResult.add_figure`
 to add it to our tree:
 
 .. literalinclude:: ../examples/example.py
@@ -55,7 +56,7 @@ to add it to our tree:
 
 We are also going to add a frequency table for Region. ContainerResult has several method
 for adding tables. As value counts will be stored in a pandas.Series, we will use
-add_series_table:
+:meth:`analyzer.results.ContainerResult.add_series_table`:
 
 .. literalinclude:: ../examples/example.py
    :lines: 34-37

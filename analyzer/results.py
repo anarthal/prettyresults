@@ -7,27 +7,32 @@ import weakref
 Label = namedtuple('Label', ('color', 'text'))
     
 class BaseResult(object):
-    """ Results have:
-        - id: unique identifier, constant between runs; will be used as file name
-        - name: human readable name
-        - result_type: string identifying the result type
-        - data: dict with other data
-        - children: list with children result ids
-    """
+    '''
+    The base class of all result objects.
+    
+    Attributes:
+        id (str): The fully-qualified ID of the result object (e.g. root.container1.container2.result).
+        name (str): Human-readable display name for the result.
+        children (list of str): List of fully-qualified IDs of the children of this result.
+                                Only relevant for containers.
+    '''
     
     def __init__(self, manager, id_, name, labels=[], children=[]):
         self.manager = manager
-        self.id = id_
+        self._id = id_
         self.name = name
         self.labels = labels
         self.data = {}
         self.children = children.copy()
     
+    @property
+    def id(self):
+        return self._id
+    
     def __getattr__(self, name):
         return self.data[name]
     
     def merge(self, old_result):
-        ''' Merges old_result into this result '''
         self.children = old_result.children
     
     def dump(self):
@@ -50,6 +55,7 @@ class BaseResult(object):
 
 
 class ContainerResult(BaseResult):
+    ''' A container result '''
     def add(self, result_factory, id_, name, *args, **kwargs):
         if '.' in id_:
             raise ValueError('Result ID cannot contain dots: {}'.format(name))
@@ -61,21 +67,27 @@ class ContainerResult(BaseResult):
         return result
     
     def add_container(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(ContainerResult, *args, **kwargs)
     
     def add_figure(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(FigureResult.from_figure, *args, **kwargs)
     
     def add_table(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(TableResult, *args, **kwargs)
     
     def add_dataframe_table(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(TableResult.from_dataframe, *args, **kwargs)
     
     def add_series_table(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(TableResult.from_series, *args, **kwargs)
     
     def add_keyvalue_table(self, *args, **kwargs):
+        ''' Placeholder'''
         return self.add(TableResult.from_key_value, *args, **kwargs)
     
     def get_child(self, id_):

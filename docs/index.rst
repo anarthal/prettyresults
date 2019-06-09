@@ -20,6 +20,7 @@ Analyzer can also generate Word documents with subsets of your results.
    
    installation
    tutorial
+   other
    reference
 
 
