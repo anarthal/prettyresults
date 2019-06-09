@@ -18,13 +18,13 @@
   </p>
 
   <!-- result body -->
-  <div ng-show="subVisible">
+  <div ng-show="subVisible" ng-switch="result.type">
 
-    <div ng-if="result.type === 'FigureResult'">
+    <div ng-switch-when="FigureResult">
       <img ng-src="results/{{result.data.filename}}" />
     </div>
 
-    <div ng-if="result.type === 'TableResult'">
+    <div ng-switch-when="TableResult">
       <p>{{result.data.pre}}</p>
       <table class="table table-striped">
         <thead>
@@ -45,7 +45,7 @@
       <p>{{result.data.post}}</p>
     </div>
 
-    <div ng-if="result.type === 'ContainerResult'" class="indented">
+    <div ng-switch-when="ContainerResult" class="indented">
       <result ng-repeat="child in result.children"
               result-data="resultDict[child]"
               result-dict="resultDict">
