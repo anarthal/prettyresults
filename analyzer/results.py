@@ -11,22 +11,23 @@ class BaseResult(object):
     The base class of all result objects.
     
     Attributes:
-        id (str): The fully-qualified ID of the result object (e.g. root.container1.container2.result).
         name (str): Human-readable display name for the result.
-        children (list of str): List of fully-qualified IDs of the children of this result.
-                                Only relevant for containers.
     '''
     
     def __init__(self, manager, id_, name, labels=[], children=[]):
+        self.name = name
         self.manager = manager
         self._id = id_
-        self.name = name
         self.labels = labels
         self.data = {}
         self.children = children.copy()
     
     @property
     def id(self):
+        '''
+        The fully-qualified ID of the result object (e.g. :code:`'root.container1.container2.result'`).
+        Type: str. Read-only. See :ref:`this topic <result_ids>` for more info.
+        '''
         return self._id
     
     def __getattr__(self, name):
@@ -55,7 +56,15 @@ class BaseResult(object):
 
 
 class ContainerResult(BaseResult):
-    ''' A container result '''
+    '''
+    A result that contains other results. Container results are intermediate nodes in
+    the result hierarchy. This class provides methods to add other types of results,
+    and is the preferred interface to do so. Container results are rendered
+    as folders in the web page, and as headings in the Word document.
+
+    Attributes:
+        name (str): Human-readable display name for the result.
+    '''
     def add(self, result_factory, id_, name, *args, **kwargs):
         if '.' in id_:
             raise ValueError('Result ID cannot contain dots: {}'.format(name))
@@ -67,27 +76,98 @@ class ContainerResult(BaseResult):
         return result
     
     def add_container(self, *args, **kwargs):
-        ''' Placeholder'''
+        '''
+        Creates a new container result and adds it as a child of this container.
+        
+        Args:
+            id (str): Unqualified ID of the result to be added. Must be unique within
+                      this container result and must not contain the dot '.' character.
+                      See :ref:`this topic <result_ids>` for more info.
+            name (str): Human-friendly display name for the result to be created.
+        Returns:
+            The newly created :class:`ContainerResult` object.
+        '''
         return self.add(ContainerResult, *args, **kwargs)
     
     def add_figure(self, *args, **kwargs):
-        ''' Placeholder'''
+        '''
+        Creates a new figure result from a matplotlib figure and adds it as a child of this container.
+        
+        Args:
+            id (str): Unqualified ID of the result to be added. Must be unique within
+                      this container result and must not contain the dot '.' character.
+                      See :ref:`this topic <result_ids>` for more info.
+            name (str): Human-friendly display name for the result to be created.
+            fig (matplotlib.pyplot.figure or 'current'): The matplotlib figure with
+                the figure of interest. If the string 'current' is passed (this is the default),
+                the current figure will be used (as returned by matplotlib.pyplot.gcf()).
+                The figure is immediately saved to a temporary file, and thus can be closed
+                safely after this function returns.
+        Returns:
+            The newly created :class:`FigureResult` object.
+        '''
         return self.add(FigureResult.from_figure, *args, **kwargs)
     
     def add_table(self, *args, **kwargs):
-        ''' Placeholder'''
+        '''
+        Creates a new table result and adds it as a child of this container.
+        
+        Args:
+            id (str): Unqualified ID of the result to be added. Must be unique within
+                      this container result and must not contain the dot '.' character.
+                      See :ref:`this topic <result_ids>` for more info.
+            name (str): Human-friendly display name for the result to be created.        
+            headings (list of str): The table headings this table should have.
+            rows (list of list of str): A bi-dimensional list describing the table cells.
+                Each of the lists represents a row, and each list element represents a cell.
+                Each row must have the same number of elements as the passed heaings.
+            pre (str): A text string to be placed before the table, optional.
+            post (str): A text string to be placed after the table, optional.
+            
+        Returns:
+            The newly created :class:`TableResult` object.
+        '''
         return self.add(TableResult, *args, **kwargs)
     
     def add_dataframe_table(self, *args, **kwargs):
-        ''' Placeholder'''
+        '''
+        Creates a new table result from a pandas DataFrame and adds it as a child of this container.
+        
+        Args:
+            id (str): Unqualified ID of the result to be added. Must be unique within
+                      this container result and must not contain the dot '.' character.
+                      See :ref:`this topic <result_ids>` for more info.
+            name (str): Human-friendly display name for the result to be created.        
+            df (pandas.DataFrame): The dataframe containing the table data. Column names are
+                used as headings, and the index will be added as a first column.
+            pre (str): A text string to be placed before the table, optional.
+            post (str): A text string to be placed after the table, optional.
+            
+        Returns:
+            The newly created :class:`TableResult` object.
+        '''
         return self.add(TableResult.from_dataframe, *args, **kwargs)
     
     def add_series_table(self, *args, **kwargs):
-        ''' Placeholder'''
+        '''
+        Creates a new table result from a pandas Series and adds it as a child of this container.
+        
+        Args:
+            id (str): Unqualified ID of the result to be added. Must be unique within
+                      this container result and must not contain the dot '.' character.
+                      See :ref:`this topic <result_ids>` for more info.
+            name (str): Human-friendly display name for the result to be created.        
+            series (pandas.Series): The series containing the table data. The table
+                will contain two columns, with the index and the values, respectively.
+            pre (str): A text string to be placed before the table, optional.
+            post (str): A text string to be placed after the table, optional.
+            
+        Returns:
+            The newly created :class:`TableResult` object.
+        '''
         return self.add(TableResult.from_series, *args, **kwargs)
     
     def add_keyvalue_table(self, *args, **kwargs):
-        ''' Placeholder'''
         return self.add(TableResult.from_key_value, *args, **kwargs)
     
     def get_child(self, id_):
@@ -95,6 +175,12 @@ class ContainerResult(BaseResult):
 
     
 class FigureResult(BaseResult):
+    '''
+    A matplotlib figure result.
+    
+    Attributes:
+        name (str): Human-readable display name for the result.
+    '''
     def __init__(self, fig, **kwargs):
         super().__init__(**kwargs)
         self.unsaved_fig = fig
@@ -134,6 +220,16 @@ class FigureResult(BaseResult):
 
         
 class TableResult(BaseResult):
+    '''
+    A table result.
+    
+    Attributes:
+        name (str): Human-readable display name for the result.        
+        headings (list of str): The table headings. Read-only.
+        rows (list of list of str): A bi-dimensional list describing the table cells. Read-only.
+        pre (str): A text string to be placed before the table. Read-only.
+        post (str): A text string to be placed after the table. Read-only.
+    '''
     def __init__(self, headings, rows, pre='', post='', **kwargs):
         super().__init__(**kwargs)
         self.data = {

@@ -1,27 +1,32 @@
 Reference
 ====================================
 
+AnalysisContext
+---------------
+
 .. autoclass:: analyzer.AnalysisContext()
    :members:
    :special-members:
    :exclude-members: __weakref__
    
-.. autoclass:: analyzer.results.BaseResult()
-   :members:
-   :special-members:
-   :exclude-members: __weakref__
+ContainerResult
+---------------
    
 .. autoclass:: analyzer.results.ContainerResult()
    :members:
    :inherited-members:
    
+FigureResult
+------------
+   
 .. autoclass:: analyzer.results.FigureResult()
    :members:
-   :special-members:
-   :exclude-members: __weakref__
+   :inherited-members:
+   
+TableResult
+-----------
    
 .. autoclass:: analyzer.results.TableResult()
    :members:
-   :special-members:
-   :exclude-members: __weakref__
+   :inherited-members:
    

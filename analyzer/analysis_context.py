@@ -21,14 +21,14 @@ class AnalysisContext(object):
         (a container with ID 'root'), at least.
         
         Args:
-            results_directory (str or None): path to the directory where result files will be written to.
+            results_directory (str or None): Path to the directory where result files will be written to.
                 Several files (result data, images...) will be written to the directory.
                 If the directory does not already exist, it will be created. If the directory
                 contains result files from previous runs, they will be loaded and added,
                 as if they had been created in the current run.
                 If it's None, a temporary directory will be created for result files, which will be removed
                 when the AnalysisContext object is destroyed.
-            container_results (list of tuples): specifies a list of container results to be created. This is
+            container_results (list of tuples): Specifies a list of container results to be created. This is
                 a shortcut to create container results beforehand. container_result must be a list
                 of 3 element tuples. Element 0 is the container ID, element 1 is the container
                 display name, and element 2 is a list of child containers to be created, with the
@@ -46,7 +46,7 @@ class AnalysisContext(object):
         '''Returns a result object identified by result_id. Raises KeyError if not found.
         
         Args:
-            result_id (str): fully-qualified ID of the result to be retrieved.
+            result_id (str): Fully-qualified ID of the result to be retrieved.
         Returns:
             Result object.
         '''
@@ -69,9 +69,9 @@ class AnalysisContext(object):
         directory exists, an exception of type FileExistsError will be raised.
         
         Args:
-            web_directory (str): path where the web page will be placed under.
-            open_browser (bool): if True, the resulting page will be open in a new web browser tab.
-            overwrite (bool): if True, the directory will be removed if already exists.
+            web_directory (str): Path where the web page will be placed under.
+            open_browser (bool): If True, the resulting page will be open in a new web browser tab.
+            overwrite (bool): If True, the directory will be removed if already exists.
         '''
         # Create the directory
         if not overwrite and path.exists(web_directory):
@@ -102,9 +102,9 @@ class AnalysisContext(object):
         '''Generates a Microsoft Word (.docx) file with the results known to the analysis context.
 
         Args:
-            output_file (str): path to the Word file to be generated, normally with a .docx extension.
+            output_file (str): Path to the Word file to be generated, normally with a .docx extension.
                 The directory part of the path should already exist.
-            result_ids (list of str): a list of fully qualified result IDs to be included in the output document.
+            result_ids (list of str): A list of fully qualified result IDs to be included in the output document.
                 If the specified results have children, these will be recursively be included, too.
                 If set to None, all results will be included.
         '''
