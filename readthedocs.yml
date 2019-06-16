@@ -1,6 +1,8 @@
+version: 2
+
 python:
    version: 3.6
    install:
       - method: pip
-        path: prettyresults
+        path: ./prettyresults
    system_packages: true
