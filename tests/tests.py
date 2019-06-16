@@ -1,4 +1,4 @@
-from analyzer import dataloader
+from prettyresults import dataloader
 import unittest
 import pandas as pd
 import numpy as np

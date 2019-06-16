@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 
 from .utils import VarType, readable_index, freq_bar
-from analyzer.utils import freq_pie
+from prettyresults.utils import freq_pie
 
 # For simplicity, mean CI is included here too
 def mean_confidence_interval(data, confidence=0.95):

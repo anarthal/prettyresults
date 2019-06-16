@@ -4,7 +4,7 @@ Reference
 AnalysisContext
 ---------------
 
-.. autoclass:: analyzer.AnalysisContext()
+.. autoclass:: prettyresults.AnalysisContext()
    :members:
    :special-members:
    :exclude-members: __weakref__
@@ -12,21 +12,21 @@ AnalysisContext
 ContainerResult
 ---------------
    
-.. autoclass:: analyzer.results.ContainerResult()
+.. autoclass:: prettyresults.results.ContainerResult()
    :members:
    :inherited-members:
    
 FigureResult
 ------------
    
-.. autoclass:: analyzer.results.FigureResult()
+.. autoclass:: prettyresults.results.FigureResult()
    :members:
    :inherited-members:
    
 TableResult
 -----------
    
-.. autoclass:: analyzer.results.TableResult()
+.. autoclass:: prettyresults.results.TableResult()
    :members:
    :inherited-members:
    

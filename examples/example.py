@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import tempfile
-from analyzer import AnalysisContext
+from prettyresults import AnalysisContext
 
 def main():
     # Read the data to analyze (standard Pandas)
@@ -67,7 +67,7 @@ def main():
     # The generated web page and Word document will represent this layout.
     
     # Generate the web and open a browser tab to view it.
-    web_directory = os.path.join(tempfile.gettempdir(), 'analyzer_web')
+    web_directory = os.path.join(tempfile.gettempdir(), 'prettyresults_web')
     ctx.generate_web(web_directory, open_browser=True, overwrite=True)
     
     # Generate the Word document.

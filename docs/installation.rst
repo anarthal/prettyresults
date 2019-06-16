@@ -5,8 +5,8 @@ From pypi:
 
 .. code-block:: bash
 
-	pip install analyzer
+	pip install prettyresults
 
 Required Python 3.4+. Tested with Python 3.6.7.
 
-Analyzer employs Pandas and Matplotlib.
+Prettyresults employs Pandas and Matplotlib.

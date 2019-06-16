@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# analyzer documentation build configuration file, created by
+# prettyresults documentation build configuration file, created by
 # sphinx-quickstart on Sat Mar  9 13:13:25 2019.
 #
 # This file is execfile()d with the current directory set to its
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'analyzer'
+project = 'prettyresults'
 copyright = '2019, me'
 author = 'me'
 
@@ -112,7 +112,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'analyzerdoc'
+htmlhelp_basename = 'prettyresults'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -139,7 +139,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'analyzer.tex', 'analyzer Documentation',
+    (master_doc, 'prettyresults.tex', 'prettyresults Documentation',
      'me', 'manual'),
 ]
 
@@ -149,7 +149,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'analyzer', 'analyzer Documentation',
+    (master_doc, 'prettyresults', 'Prettyresults Documentation',
      [author], 1)
 ]
 
@@ -160,8 +160,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'analyzer', 'analyzer Documentation',
-     author, 'analyzer', 'Display data analysis results as web pages and Word documents.',
+    (master_doc, 'prettyresults', 'Prettyresults Documentation',
+     author, 'prettyresults', 'Display data analysis results as web pages and Word documents.',
      'Miscellaneous'),
 ]
 
