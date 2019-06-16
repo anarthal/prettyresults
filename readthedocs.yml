@@ -1,0 +1,6 @@
+python:
+   version: 3.4
+   install:
+      - method: pip
+        path: prettyresults
+   system_packages: true
