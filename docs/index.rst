@@ -1,7 +1,7 @@
 .. prettyresults documentation master file.
 
-Welcome to analyzer's documentation!
-====================================
+Welcome to prettyresults' documentation!
+========================================
 
 Prettyresults is a Python package to display data analysis results in different formats.
 In short: you run your data analysis using your preferred Python tools, generate
@@ -18,6 +18,7 @@ Prettyresults can also generate Word documents with subsets of your results.
    :maxdepth: 2
    :caption: Contents:
    
+   self
    installation
    tutorial
    other
