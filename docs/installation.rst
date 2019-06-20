@@ -7,6 +7,6 @@ From pypi:
 
 	pip install prettyresults
 
-Python 3.4+ required. Tested with Python 3.6.7.
+Tested with Python 3.6.7.
 
 Prettyresults employs Pandas and Matplotlib.
