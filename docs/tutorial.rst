@@ -1,11 +1,14 @@
 Tutorial
 ====================================
 
+
+
 Welcome to prettyresults tutorial! In this example we will analyze some sales data,
 generating some descriptive graphics and tables. We will learn how to tell prettyresults about
 them so it can generate a web page and a Word document with them. The example full code
 and data is accessible in the project's git repository (https://github.com/anarthal/prettyresults), under
-the examples/ directory. The resulting web page is accessible online here: TODO.
+the examples/ directory. The resulting web page is accessible online
+`here <https://anarthal.github.io/prettyresults-example/>`_.
 
 The FooBar company sells their BarBaz product brand around the world. We have a CSV with data
 about their shipments, telling where they ship and which channel did they use (online/offline).
@@ -72,4 +75,5 @@ Finally, we will also generate a Word document with all the tables and figures:
 .. literalinclude:: ../examples/example.py
    :lines: 74-75
    
-That concludes prettyresults's tutorial! You can check the aspect of the generated webpage here. (TODO: link).
+That concludes prettyresults's tutorial! You can check the aspect of the generated web page
+`here <https://anarthal.github.io/prettyresults-example/>`_.
