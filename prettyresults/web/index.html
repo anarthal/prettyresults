@@ -62,12 +62,12 @@
         <!-- result header -->
         <p class="result-header">
           <button type="button" class="btn btn-primary"
-                  ng-click="subVisible = true"
+                  ng-click="open()"
                   ng-show="!subVisible">
             <span class="fa {{result.type | faGlyphiconClosed}}"></span>
           </button>
           <button type="button" class="btn btn-secondary"
-                  ng-click="subVisible = false"
+                  ng-click="close()"
                   ng-show="subVisible">
             <span class="fa {{result.type | faGlyphiconOpen}}"></span>
           </button>
@@ -78,7 +78,7 @@
         </p>
 
         <!-- result body -->
-        <div ng-show="subVisible" ng-switch="result.type">
+        <div ng-if="openedBefore" ng-show="subVisible" ng-switch="result.type">
 
           <div ng-switch-when="FigureResult">
             <img ng-src="results/{{result.data.filename}}" />

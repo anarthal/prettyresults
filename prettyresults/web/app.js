@@ -39,6 +39,17 @@ angular.module('app', ['ngSanitize'])
         scope: {
             result: '=resultData',
             resultDict: '='
-        }
+        },
+        controller: ['$scope', function($scope) {
+        	$scope.subVisible = false;
+        	$scope.openedBefore = false;
+        	$scope.open = function() {
+        		$scope.subVisible = true;
+        		$scope.openedBefore = true;
+        	}
+        	$scope.close = function() {
+        		$scope.subVisible = false;
+        	}
+        }]
     }
 })
