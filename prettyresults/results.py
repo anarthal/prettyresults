@@ -5,6 +5,7 @@ from collections import namedtuple
 import weakref
 
 Label = namedtuple('Label', ('color', 'text'))
+
     
 class BaseResult(object):
     '''
@@ -65,38 +66,29 @@ class ContainerResult(BaseResult):
     Attributes:
         name (str): Human-readable display name for the result.
     '''
-    def add(self, result_factory, id_, name, *args, **kwargs):
-        if '.' in id_:
-            raise ValueError('Result ID cannot contain dots: {}'.format(name))
-        child_id = self.id + '.' + id_
-        result = result_factory(manager=self.manager, id_=child_id, name=name, *args, **kwargs)
-        if child_id not in self.children:
-            self.children.append(result.id)
-        self.manager.add(result)
-        return result
     
-    def add_container(self, *args, **kwargs):
+    def add_container(self, id_, name, **kwargs):
         '''
         Creates a new container result and adds it as a child of this container.
         
         Args:
-            id (str): Unqualified ID of the result to be added. Must be unique within
-                      this container result and must not contain the dot '.' character.
-                      See :ref:`this topic <result_ids>` for more info.
+            id_ (str): Unqualified ID of the result to be added. Must be unique within
+                       this container result and must not contain the dot '.' character.
+                       See :ref:`this topic <result_ids>` for more info.
             name (str): Human-friendly display name for the result to be created.
         Returns:
             The newly created :class:`ContainerResult` object.
         '''
-        return self.add(ContainerResult, *args, **kwargs)
+        return self._create_and_add(ContainerResult, id_, name, **kwargs)
     
-    def add_figure(self, *args, **kwargs):
+    def add_figure(self, id_, name, fig='current', **kwargs):
         '''
         Creates a new figure result from a matplotlib figure and adds it as a child of this container.
         
         Args:
-            id (str): Unqualified ID of the result to be added. Must be unique within
-                      this container result and must not contain the dot '.' character.
-                      See :ref:`this topic <result_ids>` for more info.
+            id_ (str): Unqualified ID of the result to be added. Must be unique within
+                       this container result and must not contain the dot '.' character.
+                       See :ref:`this topic <result_ids>` for more info.
             name (str): Human-friendly display name for the result to be created.
             fig (matplotlib.pyplot.figure or 'current'): The matplotlib figure with
                 the figure of interest. If the string 'current' is passed (this is the default),
@@ -106,16 +98,18 @@ class ContainerResult(BaseResult):
         Returns:
             The newly created :class:`FigureResult` object.
         '''
-        return self.add(FigureResult.from_figure, *args, **kwargs)
+        if fig == 'current':
+            fig = plt.gcf()
+        return self._create_and_add(FigureResult, id_, name, fig, **kwargs)
     
-    def add_table(self, *args, **kwargs):
+    def add_table(self, id_, name, headings, rows, pre='', post='', **kwargs):
         '''
         Creates a new table result and adds it as a child of this container.
         
         Args:
-            id (str): Unqualified ID of the result to be added. Must be unique within
-                      this container result and must not contain the dot '.' character.
-                      See :ref:`this topic <result_ids>` for more info.
+            id_ (str): Unqualified ID of the result to be added. Must be unique within
+                       this container result and must not contain the dot '.' character.
+                       See :ref:`this topic <result_ids>` for more info.
             name (str): Human-friendly display name for the result to be created.        
             headings (list of str): The table headings this table should have.
             rows (list of list of str): A bi-dimensional list describing the table cells.
@@ -127,16 +121,17 @@ class ContainerResult(BaseResult):
         Returns:
             The newly created :class:`TableResult` object.
         '''
-        return self.add(TableResult, *args, **kwargs)
+        return self._create_and_add(TableResult, id_, name, headings,
+                                    rows, pre, post, **kwargs)
     
-    def add_dataframe_table(self, *args, **kwargs):
+    def add_dataframe_table(self, id_, name, df, pre='', post='', **kwargs):
         '''
         Creates a new table result from a pandas DataFrame and adds it as a child of this container.
         
         Args:
-            id (str): Unqualified ID of the result to be added. Must be unique within
-                      this container result and must not contain the dot '.' character.
-                      See :ref:`this topic <result_ids>` for more info.
+            id_ (str): Unqualified ID of the result to be added. Must be unique within
+                       this container result and must not contain the dot '.' character.
+                       See :ref:`this topic <result_ids>` for more info.
             name (str): Human-friendly display name for the result to be created.        
             df (pandas.DataFrame): The dataframe containing the table data. Column names are
                 used as headings, and the index will be added as a first column.
@@ -146,16 +141,18 @@ class ContainerResult(BaseResult):
         Returns:
             The newly created :class:`TableResult` object.
         '''
-        return self.add(TableResult.from_dataframe, *args, **kwargs)
+        headings, rows = TableResult.content_from_dataframe(df)
+        return self._create_and_add(TableResult, id_, name, headings,
+                                    rows, pre, post, **kwargs)
     
-    def add_series_table(self, *args, **kwargs):
+    def add_series_table(self, id_, name, series, pre='', post='', **kwargs):
         '''
         Creates a new table result from a pandas Series and adds it as a child of this container.
         
         Args:
-            id (str): Unqualified ID of the result to be added. Must be unique within
-                      this container result and must not contain the dot '.' character.
-                      See :ref:`this topic <result_ids>` for more info.
+            id_ (str): Unqualified ID of the result to be added. Must be unique within
+                       this container result and must not contain the dot '.' character.
+                       See :ref:`this topic <result_ids>` for more info.
             name (str): Human-friendly display name for the result to be created.        
             series (pandas.Series): The series containing the table data. The table
                 will contain two columns, with the index and the values, respectively.
@@ -165,13 +162,38 @@ class ContainerResult(BaseResult):
         Returns:
             The newly created :class:`TableResult` object.
         '''
-        return self.add(TableResult.from_series, *args, **kwargs)
+        headings, rows = TableResult.content_from_series(series)
+        return self._create_and_add(TableResult, id_, name, headings,
+                                    rows, pre, post, **kwargs)
     
-    def add_keyvalue_table(self, *args, **kwargs):
-        return self.add(TableResult.from_key_value, *args, **kwargs)
+    def add_keyvalue_table(self, id_, name, values, pre='', post='', **kwargs):
+        headings=['Nombre', 'Valor']
+        return self._create_and_add(TableResult, id_, name, headings,
+                                    values, pre, post, **kwargs)
     
     def get_child(self, id_):
         return self.manager[self.id + '.' + id_]
+    
+    def _make_qualified_id(self, unqualified_id):
+        if '.' in unqualified_id:
+            raise ValueError('Result ID cannot contain dots: {}'.format(unqualified_id))
+        return self.id + '.' + unqualified_id
+    
+    def _add(self, child):
+        if child.id not in self.children:
+            self.children.append(child.id)
+        self.manager.add(child)
+    
+    def _create_and_add(self, result_class, id_, name, *args, **kwargs):
+        child = result_class(
+            *args,
+            manager=self.manager,
+            id_=self._make_qualified_id(id_),
+            name=name,
+            **kwargs
+        )
+        self._add(child)
+        return child
 
     
 class FigureResult(BaseResult):
@@ -181,16 +203,16 @@ class FigureResult(BaseResult):
     Attributes:
         name (str): Human-readable display name for the result.
     '''
-    def __init__(self, fig, **kwargs):
+    def __init__(self, fig=None, filename=None, **kwargs):
+        # pass in fig=None to cause no figure to be saved. Used with
+        # figures loaded from previous runs
         super().__init__(**kwargs)
+        if filename is None:
+            filename = self.id + '.jpg'
         self.unsaved_fig = fig
         self.data = {
-            'filename': self.filename
+            'filename': filename
         }
-        
-    @property
-    def filename(self):
-        return self.id + '.jpg'
 
     @property
     def full_path(self):
@@ -200,23 +222,6 @@ class FigureResult(BaseResult):
         if self.unsaved_fig is not None:
             self.unsaved_fig.savefig(self.full_path, bbox_inches='tight')
             self.unsaved_fig = None
-            
-    @classmethod
-    def from_figure(cls, fig='current', **kwargs):
-        if fig == 'current':
-            fig = plt.gcf()
-        return cls(fig=fig, **kwargs)
-    
-    @classmethod
-    def from_json(cls, manager, json_obj):
-        return cls(
-            manager=manager,
-            id_=json_obj['id'],
-            name=json_obj['name'],
-            labels=json_obj['labels'],
-            children=json_obj['children'],
-            fig=None
-        )
 
         
 class TableResult(BaseResult):
@@ -241,27 +246,23 @@ class TableResult(BaseResult):
         
     def add_row(self, item):
         self.data['rows'].append(item)
-                
-    @classmethod
-    def from_dataframe(cls, df, **kwargs):
+        
+    @staticmethod
+    def content_from_dataframe(df):
         rows_heading = df.index.name if df.index.name is not None else ''
         cols_heading = df.columns.name if df.columns.name is not None else ''
         heading_sep = '/' if rows_heading != '' and cols_heading != '' else ''
         headings = [rows_heading + heading_sep + cols_heading] + list(df.columns.values)
         rows = [[str(df.index[i])] + list(df.iloc[i].values.astype(str)) for i in range(len(df.index))]
-        return cls(headings, rows, **kwargs)
+        return (headings, rows)
     
-    @classmethod
-    def from_key_value(cls, values, **kwargs):
-        return cls(headings=['Nombre', 'Valor'], rows=values, **kwargs)
-    
-    @classmethod
-    def from_series(cls, series, **kwargs):
+    @staticmethod
+    def content_from_series(series):
         left_heading = series.index.name if series.index.name is not None else ''
         right_heading = series.name if series.name is not None else ''
-        return cls(headings=[left_heading, right_heading],
-                   rows=list(zip(series.index.astype(str), series.values.astype(str))),
-                   **kwargs)
+        headings=[left_heading, right_heading]
+        rows=list(zip(series.index.astype(str), series.values.astype(str)))
+        return (headings, rows)
 
 
 class ResultManager(object):
