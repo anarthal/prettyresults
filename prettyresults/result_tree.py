@@ -7,7 +7,7 @@ import tempfile
 from .results import ResultManager
 from .word import WordGenerator
 
-class AnalysisContext(object):
+class ResultTree(object):
     '''
     Class that accumulates the results of an analysis.
     
@@ -27,7 +27,7 @@ class AnalysisContext(object):
                 contains result files from previous runs, they will be loaded and added,
                 as if they had been created in the current run.
                 If it's None, a temporary directory will be created for result files, which will be removed
-                when the AnalysisContext object is destroyed.
+                when the ResultTree object is destroyed.
             container_results (list of tuples): Specifies a list of container results to be created. This is
                 a shortcut to create container results beforehand. container_result must be a list
                 of 3 element tuples. Element 0 is the container ID, element 1 is the container

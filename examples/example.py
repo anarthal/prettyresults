@@ -1,16 +1,16 @@
 import pandas as pd
 import os
 import tempfile
-from prettyresults import AnalysisContext
+from prettyresults import ResultTree
 
 def main():
     # Read the data to analyze (standard Pandas)
     csv_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data.csv')
     df = pd.read_csv(csv_path)
     
-    # Create an analysis context. This will keep track of results, and has methods to
+    # Create a result tree. This will keep track of results, and has methods to
     # generate the web page and the Word document.
-    ctx = AnalysisContext()
+    ctx = ResultTree()
     
     # Results have an ID and a name. The ID identifies the result, while the name is intended
     # to be read by humans. Results are organized hierarchically, in a tree-like structure.

@@ -1,10 +1,10 @@
 Reference
 ====================================
 
-AnalysisContext
+ResultTree
 ---------------
 
-.. autoclass:: prettyresults.AnalysisContext()
+.. autoclass:: prettyresults.ResultTree()
    :members:
    :special-members:
    :exclude-members: __weakref__

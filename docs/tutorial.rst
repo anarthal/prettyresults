@@ -22,14 +22,14 @@ We first load the CSV using standard Pandas:
 .. literalinclude:: ../examples/example.py
    :lines: 8,9
 
-We now create an :class:`prettyresults.AnalysisContext` object.
+We now create an :class:`prettyresults.ResultTree` object.
 This is the heart of prettyresults: it will accumulate
 the results of our analysis to generate the web and Word afterwards:
 
 .. literalinclude:: ../examples/example.py
    :lines: 13
    
-The AnalysisContext stores results hierarchically, in a tree. Results may be of the following types:
+The ResultTree stores results hierarchically. Results may be of the following types:
 
 - Figures. These are matplotlib graphs.
 - Tables. The name speaks by itself.
@@ -40,8 +40,8 @@ The AnalysisContext stores results hierarchically, in a tree. Results may be of 
   add new results.
   
 Results have a unique ID (more info :ref:`here <result_ids>`) and a human-friendly display name.
-By default, the AnalysisContext creates a single container result, of ID :code:`root`.
-We may retrieve any result by ID using :meth:`prettyresults.AnalysisContext.get_result`:
+By default, the ResultTree creates a single container result, of ID :code:`root`.
+We may retrieve any result by ID using :meth:`prettyresults.ResultTree.get_result`:
 
 .. literalinclude:: ../examples/example.py
    :lines: 19

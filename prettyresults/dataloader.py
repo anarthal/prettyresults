@@ -46,7 +46,7 @@ class DataLoader(object):
 
         Args:
             fname (str): path to the CSV file to load.
-            ctx (AnalysisContext): warnings will add a table result to the context.
+            ctx (ResultTree): warnings will add a table result to the result tree.
             na_values (list of str): values to be considered as NaN.
         Returns:
             Dataframe with the loaded data.
