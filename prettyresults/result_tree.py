@@ -9,28 +9,28 @@ from .word import WordGenerator
 
 class ResultTree(object):
     '''
-    Class that accumulates the results of an analysis.
+    Class that keeps track of all results. It is the entry point of a prettyresults application.
+    It provides methods to access and add results, and to generate the web page and the Word
+    document once all results have been added.
     
-    An analysis context has a result directory, a temporary directory where result files
-    will be written to; and keeps track of the generated results. It provides methods to access
-    and add results, and to write them in different formats.
+    A ResultTree is also associated to a results directory, where temporary files will
+    be written to.
     '''
     def __init__(self, results_directory=None, container_results=[]):
         '''
-        Initializes the analysis context. The context will contain the root result
-        (a container with ID 'root'), at least.
+        Initializes the result tree and creates the root result (a container
+        result with ID 'root'.
         
         Args:
-            results_directory (str or None): Path to the directory where result files will be written to.
-                Several files (result data, images...) will be written to the directory.
-                If the directory does not already exist, it will be created. If the directory
-                contains result files from previous runs, they will be loaded and added,
-                as if they had been created in the current run.
-                If it's None, a temporary directory will be created for result files, which will be removed
+            results_directory (str or None): Path to the directory where temporary
+                result files will be written to. If it's None, a temporary directory
+                will be created for result files, which will be removed
                 when the ResultTree object is destroyed.
-            container_results (list of tuples): Specifies a list of container results to be created. This is
-                a shortcut to create container results beforehand. container_result must be a list
-                of 3 element tuples. Element 0 is the container ID, element 1 is the container
+
+            container_results (list of tuples): Specifies a list of container
+                results to be created. This is a shortcut to create container results
+                beforehand. container_result must be a list of 3 element tuples.
+                Element 0 is the container unqualified ID, element 1 is the container
                 display name, and element 2 is a list of child containers to be created, with the
                 same described format (so the structure can be arbitrarily nested).
         '''
@@ -46,14 +46,13 @@ class ResultTree(object):
         '''Returns a result object identified by result_id. Raises KeyError if not found.
         
         Args:
-            result_id (str): Fully-qualified ID of the result to be retrieved.
+            result_id (str): Qualified ID of the result to be retrieved.
         Returns:
             Result object.
         '''
         return self._result_manager[result_id]
     
     def dump_results(self):
-        '''Writes results to the result directory.'''
         self._result_manager.dump()
             
     def generate_web(self, web_directory, *, open_browser=False, overwrite=False):
@@ -61,8 +60,6 @@ class ResultTree(object):
         
         The webpage will be created under web_directory and will contain every result
         known to the analysis context. Open index.html to view the web.
-        The web is completely stand-alone: you can copy the web directory to another location
-        or machine and will still display correctly.
         
         If web_directory already exists and overwrite is True,
         the directory will be RECURSIVELY REMOVED. If remove_if_exists is False and the
@@ -102,10 +99,12 @@ class ResultTree(object):
         '''Generates a Microsoft Word (.docx) file with the results known to the analysis context.
 
         Args:
-            output_file (str): Path to the Word file to be generated, normally with a .docx extension.
+            output_file (str): Path to the Word file to be generated,
+                normally with a .docx extension.
                 The directory part of the path should already exist.
-            result_ids (list of str): A list of fully qualified result IDs to be included in the output document.
-                If the specified results have children, these will be recursively be included, too.
+            result_ids (list of str): A list of fully qualified result IDs
+                to be included in the output document. If the specified results have
+                children, these will be recursively be included, too.
                 If set to None, all results will be included.
         '''
         
