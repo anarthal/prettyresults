@@ -74,6 +74,10 @@ def main():
     word_path = os.path.join(tempfile.gettempdir(), 'results.docx')
     ctx.generate_word(word_path)
 
+    # Generate another Word document only including region and channel results,
+    # but not region-vs-channel.
+    word_path_reduced = os.path.join(tempfile.gettempdir(), 'results_reduced.docx')
+    ctx.generate_word(word_path_reduced, ['root.region', 'root.channel'])
 
 if __name__ == '__main__':
     main()
