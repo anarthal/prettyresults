@@ -25,3 +25,7 @@ From pypi:
 Required Python 3.4+. Tested with Python 3.6.7.
 
 Prettyresults employs Pandas and Matplotlib.
+
+## Documentation
+
+You can visit our documentation page here: https://prettyresults.readthedocs.io/en/stable/
