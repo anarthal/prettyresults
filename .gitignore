@@ -3,3 +3,6 @@ __pycache__
 web/data/
 .*project
 .settings/
+build/
+dist/
+*.egg-info/
