@@ -14,7 +14,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="prettyresults",
-    version="0.0.1",
+    version="1.0.0",
     author="Anarthal",
     author_email="rubenperez038@gmail.com",
     description="Present data analysis results in Web or Docx format",
