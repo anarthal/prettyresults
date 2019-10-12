@@ -2,6 +2,7 @@ import pandas as pd
 from pandas.api.types import CategoricalDtype
 import numpy as np
 from .utils import VarType
+import collections
 
 DEFAULT_NA_VALUES = (98.0, 99.0)
 
@@ -84,7 +85,9 @@ class DataLoader(object):
     
             # Convert to adequate type
             if vartype == VarType.Category:
-                cat_type = CategoricalDtype(categories=vardata['labels'].keys())
+                labels = vardata['labels']
+                ordered = isinstance(labels, collections.OrderedDict)
+                cat_type = CategoricalDtype(categories=labels.keys(), ordered=ordered)
                 cat_map = { key: value[0] for key, value in vardata['labels'].items() }
                 df.loc[:, varname] = df[varname].astype(cat_type)
                 df[varname].cat.rename_categories(cat_map, inplace=True)
