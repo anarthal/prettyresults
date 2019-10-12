@@ -16,12 +16,22 @@ def _get_label_dict(variable):
     else:
         return None
     
+def format_float(value, decimals=2):
+    return ('{:.' + str(decimals) + 'f}').format(value)
+
+def format_percentage(value):
+    return format_float(value) + '%'
+    
 def readable_index(index, variable):
     label_dict = _get_label_dict(variable)
     if label_dict is None:
         return index
     else:
         return index.map(lambda x: label_dict.get(x, x))
+    
+def make_index_readable(obj, variable):
+    obj.index = readable_index(obj.index, variable)
+    obj.index.name = variable['desc']
     
 # Plots
 def freq_bar(value_counts, title='', xlabel='', ylabel='Frecuencia', rot=0, x_value_labels_dict=None, **kwargs):
